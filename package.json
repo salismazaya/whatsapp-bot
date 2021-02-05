@@ -1,0 +1,25 @@
+{
+  "name": "whatsapp-bot",
+  "version": "1.0.0",
+  "description": "lightweight Whatsapp Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salismazaya/whatsapp-bot.git"
+  },
+  "author": "Salis Mazaya",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/salismazaya/whatsapp-bot/issues"
+  },
+  "homepage": "https://github.com/salismazaya/whatsapp-bot#readme",
+  "dependencies": {
+    "@adiwajshing/baileys": "^3.4.1",
+    "axios": "^0.21.1",
+    "sprintf-js": "^1.1.2",
+    "webp-converter": "^2.3.1"
+  }
+}
