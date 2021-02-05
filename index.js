@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const axios = require("axios");
-const fstring = require("sprintf-js").sprintf
+const fstring = require("sprintf-js").sprintf;
 const webp = require('webp-converter');
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
 const { conn } = require("./conn.js");
@@ -29,7 +29,7 @@ async function main(conn) {
 		if (message.message.conversation == "!command") {
 			conn.sendMessage(senderNumber, fstring(texts.command, conn.user.name), MessageType.text, { quoted: message })
 		
-		} else if (message.message.imageMessage && message.message.imageMessage.caption == "!sticker") {
+		} else if (message.message.imageMessage && message.message.imageMessage.caption == "!sticker" && message.message.imageMessage.mimetype == "image/jpeg") {
 			const nameFile = Math.floor(Math.random() * 1000000 + 1) + ".jpg";
 			fs.writeFileSync(nameFile, await conn.downloadMediaMessage(message));
 
@@ -40,8 +40,9 @@ async function main(conn) {
 			fs.unlinkSync(nameFile);
 			conn.sendMessage(senderNumber, image, MessageType.sticker, { quoted: message });
 		
-		} else if (message.message.extendedTextMessage && message.message.extendedTextMessage.text == "!toimg"
-					&& message.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage) {
+		} else if (message.message.extendedTextMessage && message.message.extendedTextMessage.text == "!toimg" 
+			&& message.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage
+			&& message.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage.mimetype == "image/webp") {
 			
 			message.message = message.message.extendedTextMessage.contextInfo.quotedMessage
 			const nameFile = Math.floor(Math.random() * 1000000 + 1) + ".jpg";
@@ -66,7 +67,7 @@ async function main(conn) {
 				const image = Buffer.from(response.data, "binary");
 				await conn.sendMessage(senderNumber, image, MessageType.image, { quoted: message });
 			}
-			
+
 		}
 
 		
