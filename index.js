@@ -3,12 +3,11 @@
 
 const fs = require("fs");
 const axios = require("axios");
-const fstring = require("sprintf-js").sprintf;
-const webp = require('webp-converter');
 const PDFDocument = require("pdfkit");
 const brainly = require("brainly-scraper");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
 const { conn } = require("./conn.js");
+const webpConverter = require("./webpconverter.js")
 
 if (!fs.existsSync(".temp")) fs.mkdirSync(".temp");
 
@@ -107,29 +106,18 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 
 
 		} else if (message.message.imageMessage && message.message.imageMessage.caption == "!sticker" && message.message.imageMessage.mimetype == "image/jpeg") {
-			const pathFile = ".temp/" + Math.floor(Math.random() * 1000000 + 1) + ".jpg";
-			fs.writeFileSync(pathFile, await conn.downloadMediaMessage(message));
-
-			const imageB64 = fs.readFileSync(pathFile).toString("base64");
-			const webpImageB64 = await webp.str2webpstr(imageB64, "jpg", "-q 80");
-			const image = Buffer.from(webpImageB64, "base64");
-
-			fs.unlinkSync(pathFile);
-			conn.sendMessage(senderNumber, image, MessageType.sticker, { quoted: message });
+			const image = await conn.downloadMediaMessage(message);
+			const webpImage = await webpConverter.imageToWebp(image);
+			conn.sendMessage(senderNumber, webpImage, MessageType.sticker, { quoted: message });
 		
 		} else if (message.message.extendedTextMessage && message.message.extendedTextMessage.text == "!toimg" 
 			&& message.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage
 			&& message.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage.mimetype == "image/webp") {
 			
 			message.message = message.message.extendedTextMessage.contextInfo.quotedMessage
-			const pathFile = ".temp/" + Math.floor(Math.random() * 1000000 + 1) + ".jpg";
-			fs.writeFileSync(pathFile, await conn.downloadMediaMessage(message));
-
-			await webp.dwebp(pathFile, pathFile, "-o");
-			const image = fs.readFileSync(pathFile);
-
-			fs.unlinkSync(pathFile);
-			conn.sendMessage(senderNumber, image, MessageType.image, { quoted: message, caption: "Ini gambarnya kak!" });
+			const webpImage = await conn.downloadMediaMessage(message);
+			const jpgImage = await webpConverter.webpToJpg(webpImage);
+			conn.sendMessage(senderNumber, jpgImage, MessageType.image, { quoted: message, caption: "Ini gambarnya kak!" });
 		
 		} else if (typeof(message.message.conversation) == "string" && message.message.conversation.startsWith("!write ")) {
 			const data = await axios.post("https://salism3.pythonanywhere.com/write", { "text": message.message.conversation.replace("!write ", "") });

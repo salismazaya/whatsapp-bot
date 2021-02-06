@@ -1,0 +1,50 @@
+// https://github.com/salismazaya/whatsapp-bot
+
+const fs = require("fs");
+const FileType = require('file-type');
+const { exec } = require("child_process");
+
+if (!fs.existsSync(".temp")) fs.mkdirSync(".temp");
+
+function imageToWebp(bufferImage) {
+	return new Promise((resolve, reject) => {
+		FileType.fromBuffer(bufferImage)
+			.then((response) => {
+				try {
+					const pathFile = ".temp/" + Math.floor(Math.random() * 1000000 + 1) + "." + response.ext;
+					fs.writeFileSync(pathFile, bufferImage);
+					exec(`cwebp -q 70 ${pathFile} -o ${pathFile}.webp`, (error, stdout, stderr) => {
+						const webpBufferImage = fs.readFileSync(pathFile + ".webp");
+						fs.unlinkSync(pathFile);
+						fs.unlinkSync(pathFile + ".webp");
+						resolve(webpBufferImage);
+					});
+
+				} catch(e) {
+					reject(e);
+				}
+			})
+			.catch(e => reject(e))
+	});
+}
+
+function webpToJpg(bufferImage) {
+	return new Promise((resolve, reject) => {
+		try {
+			const pathFile = ".temp/" + Math.floor(Math.random() * 1000000 + 1) + ".webp";
+			fs.writeFileSync(pathFile, bufferImage);
+
+			exec(`dwebp ${pathFile} -o ${pathFile}.jpg`, (error, stdout, stderr) => {
+				const jpgBufferImage = fs.readFileSync(pathFile + ".jpg");
+				fs.unlinkSync(pathFile);
+				fs.unlinkSync(pathFile + ".jpg");
+				resolve(jpgBufferImage);
+			})
+		} catch(e) {
+			reject(e);
+		}
+	});
+}
+
+exports.imageToWebp = imageToWebp;
+exports.webpToJpg = webpToJpg;
