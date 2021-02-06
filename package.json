@@ -19,6 +19,7 @@
   "dependencies": {
     "@adiwajshing/baileys": "^3.4.1",
     "axios": "^0.21.1",
+    "pdfkit": "^0.11.0",
     "sprintf-js": "^1.1.2",
     "webp-converter": "^2.3.1"
   }
