@@ -14,7 +14,7 @@ if (!fs.existsSync(".temp")) fs.mkdirSync(".temp");
 const inPdfInput = [];
 const bufferImagesForPdf = {};
 
-async function main(conn) {
+async function main() {
 	conn.on("credentials-updated", () => {
 	    const authInfo = conn.base64EncodedAuthInfo();
 	    fs.writeFileSync("login.json", JSON.stringify(authInfo));
@@ -125,4 +125,4 @@ async function main(conn) {
 
 }
 
-main(conn);
+main();
