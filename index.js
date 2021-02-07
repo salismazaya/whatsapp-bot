@@ -149,7 +149,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 			}
 
 		} else {
-			if (!message.participant && message.message.stickerMessage) conn.sendMessage(senderNumber, "kamu ngetik apa sih? aku gk ngerti, kirim *!help* untuk bantuan", MessageType.text, { quoted: message })
+			if (!message.participant && !message.message.stickerMessage) conn.sendMessage(senderNumber, "kamu ngetik apa sih? aku gk ngerti, kirim *!help* untuk bantuan", MessageType.text, { quoted: message })
 		}
 
 		
