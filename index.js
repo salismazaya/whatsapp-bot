@@ -147,6 +147,9 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 					await conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message })
 				}
 			}
+
+		} else {
+			if (!message.participant && message.message.stickerMessage) conn.sendMessage(senderNumber, "kamu ngetik apa sih? aku gk ngerti, kirim *!help* untuk bantuan", MessageType.text, { quoted: message })
 		}
 
 		
