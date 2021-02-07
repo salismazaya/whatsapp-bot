@@ -35,6 +35,15 @@ async function main() {
 		if (!message.message || message.key.fromMe) return;
 		const senderNumber = message.key.remoteJid;
 
+		if (message.message.imageMessage && message.message.imageMessage.mimetype == "image/jpeg") {
+			const image = await conn.downloadMediaMessage(message);
+			const imageBase64 = image.toString("base64");
+			const response = await axios.post("http://salism3api.pythonanywhere.com/faceCheck/", { image:imageBase64 })
+			if (response.data.face == 1) {
+				conn.sendMessage(senderNumber, "Siapa itu kak? kok keren sih?", MessageType.text, { quoted: message })
+			}
+		}
+
 		if (inPdfInput.includes(senderNumber)) {
 			if (message.message.stickerMessage) return;
 			if (message.message.conversation == "!done" || bufferImagesForPdf[senderNumber].length > 19) {
@@ -120,8 +129,8 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 			conn.sendMessage(senderNumber, jpgImage, MessageType.image, { quoted: message, caption: "Ini gambarnya kak!" });
 		
 		} else if (typeof(message.message.conversation) == "string" && message.message.conversation.startsWith("!write ")) {
-			const data = await axios.post("https://salism3.pythonanywhere.com/write", { "text": message.message.conversation.replace("!write ", "") });
-			const imagesUrl = data.data.images.slice(0, 4);
+			const response = await axios.post("https://salism3.pythonanywhere.com/write", { "text": message.message.conversation.replace("!write ", "") });
+			const imagesUrl = response.data.images.slice(0, 4);
 
 			for (const imageUrl of imagesUrl) {
 				const response = await axios({
@@ -149,7 +158,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 			}
 
 		} else {
-			if (!message.participant && !message.message.stickerMessage) conn.sendMessage(senderNumber, "kamu ngetik apa sih? aku gk ngerti, kirim *!help* untuk bantuan", MessageType.text, { quoted: message })
+			if (!message.participant && !message.message.stickerMessage && !message.message.imageMessage) conn.sendMessage(senderNumber, "kamu ngetik apa sih? aku gk ngerti, kirim *!help* untuk bantuan", MessageType.text, { quoted: message })
 		}
 
 		
