@@ -13,7 +13,7 @@ function imageToWebp(bufferImage) {
 				try {
 					const pathFile = ".temp/" + Math.floor(Math.random() * 1000000 + 1) + "." + response.ext;
 					fs.writeFileSync(pathFile, bufferImage);
-					exec(`cwebp -q 70 ${pathFile} -o ${pathFile}.webp`, (error, stdout, stderr) => {
+					exec(`cwebp -q 50 ${pathFile} -o ${pathFile}.webp`, (error, stdout, stderr) => {
 						const webpBufferImage = fs.readFileSync(pathFile + ".webp");
 						fs.unlinkSync(pathFile);
 						fs.unlinkSync(pathFile + ".webp");
@@ -24,7 +24,7 @@ function imageToWebp(bufferImage) {
 					reject(e);
 				}
 			})
-			.catch(e => reject(e))
+			.catch(e => reject(e));
 	});
 }
 
