@@ -18,14 +18,14 @@ async function messageHandler(message) {
 	const imageMessage = message.message.imageMessage;
 	const stickerMessage = message.message.stickerMessage;
 	const extendedTextMessage = message.message.extendedTextMessage;
-	const qoutedMessage = extendedTextMessage && extendedTextMessage.contextInfo && extendedTextMessage.contextInfo.qoutedMessage;
+	const quotedMessage = extendedTextMessage && extendedTextMessage.contextInfo && extendedTextMessage.contextInfo.quotedMessage;
 	const textMessage = message.message.conversation || message.message.extendedTextMessage && message.message.extendedTextMessage.text;
+	let command, parameter;
 	if (textMessage) {
-		var command = textMessage.trim().split(" ")[0];
-		var parameter = textMessage.trim().split(" ").splice(1).join(" ")
+		command = textMessage.trim().split(" ")[0];
+		parameter = textMessage.trim().split(" ").splice(1).join(" ");
 	}
 	
-
 	// if (imageMessage && imageMessage.mimetype == "image/jpeg") {
 	// 	const image = await conn.downloadMediaMessage(message);
 	// 	const imageBase64 = image.toString("base64");
@@ -119,8 +119,8 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 		const webpImage = await webpConverter.imageToWebp(image);
 		conn.sendMessage(senderNumber, webpImage, MessageType.sticker, { quoted: message });
 		
-	} else if (qoutedMessage && command == "!toimg" && qoutedMessage.stickerMessage && qoutedMessage.stickerMessage.mimetype == "image/webp") {
-		message.message = qoutedMessage
+	} else if (quotedMessage && command == "!toimg" && quotedMessage.stickerMessage && quotedMessage.stickerMessage.mimetype == "image/webp") {
+		message.message = quotedMessage
 		const webpImage = await conn.downloadMediaMessage(message);
 		const jpgImage = await webpConverter.webpToJpg(webpImage);
 		conn.sendMessage(senderNumber, jpgImage, MessageType.image, { quoted: message, caption: "Ini gambarnya kak!" });
