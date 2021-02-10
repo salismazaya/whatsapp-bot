@@ -90,7 +90,7 @@ async function messageHandler(message) {
 - kirim *!brainly [pertanyaan kamu]* untuk mencari pertanyaan dan jawaban di brainly
   contoh: !brainly apa itu nodejs
 
-- *!qoutes* untuk medendapat qoutes
+- *!qoutes* untuk mendapatkan qoutes
 
 - *!randomfact* untuk mendapatkan pengetahuan acak
 
