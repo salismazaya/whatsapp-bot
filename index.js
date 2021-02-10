@@ -22,6 +22,7 @@ conn.on("message-new", (message) => {
 	});
 });
 
+
 conn.connect()
 	.then(() => {
 		console.log("[OK] Login sukses! kirim !help untuk menampilkan perintah")

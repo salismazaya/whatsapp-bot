@@ -94,8 +94,13 @@ async function messageHandler(message) {
 
 - *!randomfact* untuk mendapatkan pengetahuan acak
 
-- *!gtts [kode negara] [text]* untuk mengubah text ke suara google
+- *!gtts [kode bahasa] [text]* untuk mengubah text ke suara google. Untuk kode bahasa dilihat disini https://s.id/xSj1g
   contoh: !gtts id saya bot
+
+- *!wikipedia [query]* untuk mencari dan membaca artikel di wikipedia
+  contoh: !wikipedia Python
+
+- kirim gambar dengan caption *!wait* untuk mencari judul dan episode anime dari scene
 
 Bot sensitif terhadap simbol / spasi / huruf kecil / huruf besar jadi, bot tidak akan membalas jika terjadi kesalahan penulisan!
 
@@ -111,7 +116,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 - Facebook: fb.me/salismazaya
 - Telegram: t.me/salismiftah
 - Email: salismazaya@gmail.com`
-		conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message })
+		conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message, detectLinks: false })
 
 
 	} else if (imageMessage && imageMessage.caption == "!sticker" && imageMessage.mimetype == "image/jpeg") {
@@ -120,12 +125,12 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 		conn.sendMessage(senderNumber, webpImage, MessageType.sticker, { quoted: message });
 		
 	} else if (quotedMessage && command == "!toimg" && quotedMessage.stickerMessage && quotedMessage.stickerMessage.mimetype == "image/webp") {
-		message.message = quotedMessage
+		message.message = quotedMessage;
 		const webpImage = await conn.downloadMediaMessage(message);
 		const jpgImage = await webpConverter.webpToJpg(webpImage);
 		conn.sendMessage(senderNumber, jpgImage, MessageType.image, { quoted: message, caption: "Ini gambarnya kak!" });
 		
-	} else if (command == "!write") {
+	} else if (command == "!write" && parameter) {
 		const response = await axios.post("https://salism3.pythonanywhere.com/write", { "text": parameter });
 		const imagesUrl = response.data.images.slice(0, 4);
 
@@ -145,7 +150,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 
 		conn.sendMessage(senderNumber, "Silahkan kirim gambarnya satu persatu! jangan spam ya!", MessageType.text, { quoted: message })
 
-	} else if (command == "!brainly") {
+	} else if (command == "!brainly" && parameter) {
 		const data = await brainly(parameter);
 		if (data.succses && data.data.length <= 0) {
 			conn.sendMessage(senderNumber, "Pertanyaan tidak ditemukan :(", MessageType.text, { quoted: message })
@@ -167,9 +172,9 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 		const text = response.data.result;
 		await conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
 		
-	} else if (command == "!gtts") {
+	} else if (command == "!gtts" && parameter) {
 		if (parameter.split(" ").length == 1) {
-			conn.sendMessage(senderNumber, "Tidak ada kode negara / teks", MessageType.text, { quoted: message });
+			conn.sendMessage(senderNumber, "Tidak ada kode bahasa / teks", MessageType.text, { quoted: message });
 			return;
 		}
 
@@ -185,13 +190,34 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 			}
 		}).then(response => {
 			const audio = Buffer.from(response.data, "binary");
-			conn.sendMessage(senderNumber, audio, MessageType.audio, { ptt: true, quoted: message })
+			conn.sendMessage(senderNumber, audio, MessageType.audio, { ptt: true, quoted: message });
 
 		}).catch(response => {
-			conn.sendMessage(senderNumber, `Kode negara *${language}* tidak ditemukan :(`, MessageType.text, { quoted: message })
+			conn.sendMessage(senderNumber, `Kode negara *${language}* tidak ditemukan :(`, MessageType.text, { quoted: message });
 
 		})
 		
+	} else if (command == "!wikipedia" && parameter) {
+		const response = await axios.post("http://salism3api.pythonanywhere.com/wikipedia/", { "query":parameter });
+		if (response.data.message == "not found") {
+			conn.sendMessage(senderNumber, `Artikel tidak ditemukan :(`, MessageType.text, { quoted: message });
+		} else {
+			const text = `*${response.data.title}*\n\n${response.data.content}`;
+			conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
+		}
+
+	} else if (imageMessage && imageMessage.caption == "!wait") {
+		const image = await conn.downloadMediaMessage(message);
+		const imageBase64 = image.toString("base64");
+
+		const response = await axios.post("https://trace.moe/api/search", { "image":imageBase64 });
+		const result = response.data.docs[0];
+
+		const text = `Nama Anime : _${result.title_romaji}_\nSeason : _${result.season}_\nEpisode : _${result.episode}_\nAkurasi : _${result.similarity}_`
+		conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
+
+	} else {
+		if (!message.participant && !stickerMessage) conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });
 	}
 
 }

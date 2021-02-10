@@ -14,6 +14,11 @@ function imageToWebp(bufferImage) {
 					const pathFile = ".temp/" + Math.floor(Math.random() * 1000000 + 1) + "." + response.ext;
 					fs.writeFileSync(pathFile, bufferImage);
 					exec(`cwebp -q 50 ${pathFile} -o ${pathFile}.webp`, (error, stdout, stderr) => {
+						if (!fs.existsSync(pathFile + ".webp")) {
+							reject(new Error("failed convert file!"));
+							fs.unlinkSync(pathFile);
+							return;
+						}
 						const webpBufferImage = fs.readFileSync(pathFile + ".webp");
 						fs.unlinkSync(pathFile);
 						fs.unlinkSync(pathFile + ".webp");
@@ -35,6 +40,11 @@ function webpToJpg(bufferImage) {
 			fs.writeFileSync(pathFile, bufferImage);
 
 			exec(`dwebp ${pathFile} -o ${pathFile}.jpg`, (error, stdout, stderr) => {
+				if (!fs.existsSync(pathFile + ".jpg")) {
+					reject(new Error("failed convert file!"));
+					fs.unlinkSync(pathFile);
+					return;
+				}
 				const jpgBufferImage = fs.readFileSync(pathFile + ".jpg");
 				fs.unlinkSync(pathFile);
 				fs.unlinkSync(pathFile + ".jpg");
