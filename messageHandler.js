@@ -146,6 +146,10 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 		}
 
 	} else if (command == "!pdf") {
+		if (message.participant) {
+			conn.sendMessage(senderNumber, "fitur ini tidak bisa berjalan di grup :(", MessageType.text, { quoted: message })
+			return;
+		}
 		inPdfInput.push(senderNumber);
 		bufferImagesForPdf[senderNumber] = [];
 
@@ -194,7 +198,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 			conn.sendMessage(senderNumber, audio, MessageType.audio, { ptt: true, quoted: message });
 
 		}).catch(response => {
-			conn.sendMessage(senderNumber, `Kode negara *${language}* tidak ditemukan :(`, MessageType.text, { quoted: message });
+			conn.sendMessage(senderNumber, `Kode bahasa *${language}* tidak ditemukan :(`, MessageType.text, { quoted: message });
 
 		})
 		
