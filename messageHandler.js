@@ -6,6 +6,7 @@ const PDFDocument = require("pdfkit");
 const brainly = require("brainly-scraper");
 const webpConverter = require("./webpconverter.js");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
+const { lolHumanApiKey } = require("./data.js");
 const { conn } = require("./conn.js");
 
 const inPdfInput = [];
@@ -90,7 +91,7 @@ async function messageHandler(message) {
 - kirim *!brainly [pertanyaan kamu]* untuk mencari pertanyaan dan jawaban di brainly
   contoh: !brainly apa itu nodejs
 
-- *!qoutes* untuk mendapatkan qoutes
+- *!quotes* untuk mendapatkan quotes
 
 - *!randomfact* untuk mendapatkan pengetahuan acak
 
@@ -162,13 +163,13 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 			}
 		}
 
-	} else if (command == "!qoutes") {
-		const response = await axios.get("http://lolhuman.herokuapp.com/api/random/quotes");
+	} else if (command == "!quotes") {
+		const response = await axios.get("http://lolhuman.herokuapp.com/api/random/quotes?apikey=" + lolHumanApiKey);
 		const text = `_"${response.data.result.quote}"_\n\n - ${response.data.result.by}`;
 		await conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
 		
 	} else if (command == "!randomfact") {
-		const response = await axios.get("http://lolhuman.herokuapp.com/api/random/faktaunik");
+		const response = await axios.get("http://lolhuman.herokuapp.com/api/random/faktaunik?apikey=" + lolHumanApiKey);
 		const text = response.data.result;
 		await conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
 		
