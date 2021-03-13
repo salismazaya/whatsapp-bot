@@ -204,13 +204,26 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 		})
 		
 	} else if (command == "!wikipedia" && parameter) {
-		const response = await axios.post("http://salism3api.pythonanywhere.com/wikipedia", { "query":parameter });
-		if (response.data.message == "not found") {
-			conn.sendMessage(senderNumber, `Artikel tidak ditemukan :(`, MessageType.text, { quoted: message });
-		} else {
-			const text = `*${response.data.title}*\n\n${response.data.content}`;
-			conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
-		}
+		// const response = await axios.post("http://salism3api.pythonanywhere.com/wikipedia", { "query":parameter });
+		// if (response.data.message == "not found") {
+		// 	conn.sendMessage(senderNumber, `Artikel tidak ditemukan :(`, MessageType.text, { quoted: message });
+		// } else {
+		// 	const text = `*${response.data.title}*\n\n${response.data.content}`;
+		// 	conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
+		// }
+
+		axios.post("http://salism3api.pythonanywhere.com/wikipedia", { "query":parameter })
+			.then(response => {
+				const text = `*${response.data.title}*\n\n${response.data.content}`;
+				conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
+			})
+			.catch(e => {
+				if ([ 500, 400, 404 ].includes(e.response.status)) {
+					conn.sendMessage(senderNumber, `Artikel tidak ditemukan :(`, MessageType.text, { quoted: message });
+				} else {
+					throw e;
+				}
+			})
 
 	} else if (imageMessage && imageMessage.caption == "!wait") {
 		const image = await conn.downloadMediaMessage(message);
