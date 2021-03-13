@@ -56,5 +56,4 @@ function webpToJpg(bufferImage) {
 	});
 }
 
-exports.imageToWebp = imageToWebp;
-exports.webpToJpg = webpToJpg;
+module.exports = { imageToWebp, webpToJpg }

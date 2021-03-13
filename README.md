@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.ibb.co/RSyffwT/IMG-20210202-071517-319.jpg" width=500/>
+  <img src="https://i.postimg.cc/4Zz0WjN0/IMG-20210202-071517-319.jpg" width=500/>
 </p>
 
 <div align="center"><h3>Simple Whatsapp Bot Made <br>With <a href="https://github.com/adiwajshing/Baileys">Baileys</a></h3></div> 
@@ -15,7 +15,7 @@ node index.js
 
 ### Install di Linux (ubuntu & debian)
 ```
-sudo apt install npm webp
+sudo apt install npm git webp
 sudo npm install -g n
 sudo n stable
 git clone https://github.com/salismazaya/whatsapp-bot
@@ -31,7 +31,7 @@ node index.js
 - convert gambar ke pdf
 - nulis
 - brainly
-- random qoutes
+- random quotes
 - random pengetahuan
 - text to sound
 - wikipedia

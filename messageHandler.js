@@ -6,11 +6,12 @@ const PDFDocument = require("pdfkit");
 const brainly = require("brainly-scraper");
 const webpConverter = require("./webpconverter.js");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
-const { lolHumanApiKey } = require("./data.js");
-const { conn } = require("./conn.js");
+const conn = require("./conn.js");
 
 const inPdfInput = [];
 const bufferImagesForPdf = {};
+const quotesList = JSON.parse(fs.readFileSync("quotes.json", "utf-8"));
+const factList = JSON.parse(fs.readFileSync("fact.json", "utf-8"));
 
 async function messageHandler(message) {
 	if (!message.message || message.key.fromMe) return;
@@ -24,7 +25,7 @@ async function messageHandler(message) {
 	let command, parameter;
 	if (textMessage) {
 		command = textMessage.trim().split(" ")[0];
-		parameter = textMessage.trim().split(" ").splice(1).join(" ");
+		parameter = textMessage.trim().split(" ").slice(1).join(" ");
 	}
 	
 	// if (imageMessage && imageMessage.mimetype == "image/jpeg") {
@@ -72,7 +73,7 @@ async function messageHandler(message) {
 		}
 
 
-	} else if (command == "!help") {
+	} else if (command == "!help" && !parameter) {
 		const text = `Halo kak selamat datang di *${conn.user.name}*!
 
 - kirim *!help* untuk melihat daftar perintah dari bot ini
@@ -105,13 +106,13 @@ async function messageHandler(message) {
 
 Bot sensitif terhadap simbol / spasi / huruf kecil / huruf besar jadi, bot tidak akan membalas jika terjadi kesalahan penulisan!
 
-Bot ini open source loh! kakak bisa cek di https://github.com/salismazaya/whatsapp-bot
+Bot ini open source loh! kakak bisa cek di https://github.com/salismazaya/whatsapp-bot (jika ingin mengedit mohon untuk tidak hilangankan link ini)
 
-apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
+apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jika ingin mengedit mohon untuk tidak hilangankan link ini)", "")
 
 		conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message })
 		
-	} else if (command == "!contact") {
+	} else if (command == "!contact" && !parameter) {
 		const text = `Hubungi saya di
 
 - Facebook: fb.me/salismazaya
@@ -120,19 +121,19 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 		conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message, detectLinks: false })
 
 
-	} else if (imageMessage && imageMessage.caption == "!sticker" && imageMessage.mimetype == "image/jpeg") {
+	} else if (imageMessage && imageMessage.caption == "!sticker" && !parameter && imageMessage.mimetype == "image/jpeg") {
 		const image = await conn.downloadMediaMessage(message);
 		const webpImage = await webpConverter.imageToWebp(image);
 		conn.sendMessage(senderNumber, webpImage, MessageType.sticker, { quoted: message });
 		
-	} else if (quotedMessage && command == "!toimg" && quotedMessage.stickerMessage && quotedMessage.stickerMessage.mimetype == "image/webp") {
+	} else if (quotedMessage && command == "!toimg" && !parameter && quotedMessage.stickerMessage && quotedMessage.stickerMessage.mimetype == "image/webp") {
 		message.message = quotedMessage;
 		const webpImage = await conn.downloadMediaMessage(message);
 		const jpgImage = await webpConverter.webpToJpg(webpImage);
 		conn.sendMessage(senderNumber, jpgImage, MessageType.image, { quoted: message, caption: "Ini gambarnya kak!" });
 		
 	} else if (command == "!write" && parameter) {
-		const response = await axios.post("https://salism3.pythonanywhere.com/write", { "text": parameter });
+		const response = await axios.post("https://salism3api.pythonanywhere.com/write", { "text": parameter });
 		const imagesUrl = response.data.images.slice(0, 4);
 
 		for (const imageUrl of imagesUrl) {
@@ -145,7 +146,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 			await conn.sendMessage(senderNumber, image, MessageType.image, { quoted: message });
 		}
 
-	} else if (command == "!pdf") {
+	} else if (command == "!pdf" && !parameter) {
 		if (message.participant) {
 			conn.sendMessage(senderNumber, "fitur ini tidak bisa berjalan di grup :(", MessageType.text, { quoted: message })
 			return;
@@ -167,14 +168,14 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 			}
 		}
 
-	} else if (command == "!quotes") {
-		const response = await axios.get("http://lolhuman.herokuapp.com/api/random/quotes?apikey=" + lolHumanApiKey);
-		const text = `_"${response.data.result.quote}"_\n\n - ${response.data.result.by}`;
+	} else if (command == "!quotes" && !parameter) {
+		const quotes = quotesList[Math.floor(Math.random() * quotesList.length)]
+		const text = `_"${quotes.quote}"_\n\n - ${quotes.by}`;
 		await conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
 		
-	} else if (command == "!randomfact") {
-		const response = await axios.get("http://lolhuman.herokuapp.com/api/random/faktaunik?apikey=" + lolHumanApiKey);
-		const text = response.data.result;
+	} else if (command == "!randomfact" && !parameter) {
+		const fact = factList[Math.floor(Math.random() * factList.length)]
+		const text = `_${fact}_`
 		await conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
 		
 	} else if (command == "!gtts" && parameter) {
@@ -186,7 +187,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 		const language = parameter.split(" ")[0];
 		const text = parameter.split(" ").splice(1).join(" ");
 		axios({
-			url: `https://salism3api.pythonanywhere.com/gtts/`,
+			url: `https://salism3api.pythonanywhere.com/text2sound`,
 			method: "POST",
 			responseType: "arraybuffer",
 			data: {
@@ -203,7 +204,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 		})
 		
 	} else if (command == "!wikipedia" && parameter) {
-		const response = await axios.post("http://salism3api.pythonanywhere.com/wikipedia/", { "query":parameter });
+		const response = await axios.post("http://salism3api.pythonanywhere.com/wikipedia", { "query":parameter });
 		if (response.data.message == "not found") {
 			conn.sendMessage(senderNumber, `Artikel tidak ditemukan :(`, MessageType.text, { quoted: message });
 		} else {
@@ -227,5 +228,5 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`
 
 }
 
-exports.messageHandler = messageHandler;
+module.exports = messageHandler;
 

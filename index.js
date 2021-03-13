@@ -2,8 +2,8 @@
 // Jika ingin mengubah / mengedit, mohon untuk tidak menghilangkan link github asli di dalam bot terimakasih ^_^
 
 const fs = require("fs");
-const { conn } = require("./conn.js");;
-const { messageHandler } = require("./messageHandler.js");
+const conn = require("./conn.js");;
+const messageHandler = require("./messageHandler.js");
 
 if (!fs.existsSync(".temp")) fs.mkdirSync(".temp");
 

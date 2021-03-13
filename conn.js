@@ -3,4 +3,4 @@
 const { WAConnection } = require("@adiwajshing/baileys");
 const conn = new WAConnection();
 
-exports.conn = conn;
+module.exports = conn;
