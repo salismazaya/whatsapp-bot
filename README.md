@@ -27,6 +27,7 @@ node index.js
 ### fitur
 ```
 - convert gambar ke sticker
+- convert text ke sticker
 - convert sticker ke gambar
 - convert gambar ke pdf
 - nulis

@@ -60,7 +60,7 @@ async function messageHandler(message) {
 				inPdfInput.splice(inPdfInput.indexOf(senderNumber), 1);
 				delete bufferImagesForPdf[senderNumber];
 			})
-				
+
 
 		} else if (imageMessage && imageMessage.mimetype == "image/jpeg") {
 			const bufferImage = await conn.downloadMediaMessage(message);
@@ -86,21 +86,23 @@ async function messageHandler(message) {
 
 - reply sticker dengan caption *!toimg* untuk membuat sticker ke gambar
 
+- kirim *!textsticker [text kamu]* untuk membuat text sticker
+
 - kirim *!write [masukan text disini]* untuk menulis ke kertas
-  contoh: !write ini tulisanku
+contoh: !write ini tulisanku
 
 - kirim *!brainly [pertanyaan kamu]* untuk mencari pertanyaan dan jawaban di brainly
-  contoh: !brainly apa itu nodejs
+contoh: !brainly apa itu nodejs
 
 - *!quotes* untuk mendapatkan quotes
 
 - *!randomfact* untuk mendapatkan pengetahuan acak
 
 - *!gtts [kode bahasa] [text]* untuk mengubah text ke suara google. Untuk kode bahasa dilihat disini https://s.id/xSj1g
-  contoh: !gtts id saya bot
+contoh: !gtts id saya bot
 
 - *!wikipedia [query]* untuk mencari dan membaca artikel di wikipedia
-  contoh: !wikipedia Python
+contoh: !wikipedia Python
 
 - kirim gambar dengan caption *!wait* untuk mencari judul dan episode anime dari scene
 
@@ -115,9 +117,9 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 	} else if (command == "!contact" && !parameter) {
 		const text = `Hubungi saya di
 
-- Facebook: fb.me/salismazaya
-- Telegram: t.me/salismiftah
-- Email: salismazaya@gmail.com`
+		- Facebook: fb.me/salismazaya
+		- Telegram: t.me/salismiftah
+		- Email: salismazaya@gmail.com`
 		conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message, detectLinks: false })
 
 
@@ -160,7 +162,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 		const data = await brainly(parameter);
 		if (data.succses && data.data.length <= 0) {
 			conn.sendMessage(senderNumber, "Pertanyaan tidak ditemukan :(", MessageType.text, { quoted: message })
-		
+
 		} else if (data.success) {
 			for (const question of data.data.slice(0, 3)) {
 				const text = `*Pertanyaan:* ${question.pertanyaan.trim()}\n\n*Jawaban*: ${question.jawaban[0].text.replace("Jawaban:", "").trim()}`
@@ -213,17 +215,17 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 		// }
 
 		axios.post("http://salism3api.pythonanywhere.com/wikipedia", { "query":parameter })
-			.then(response => {
-				const text = `*${response.data.title}*\n\n${response.data.content}`;
-				conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
-			})
-			.catch(e => {
-				if ([ 500, 400, 404 ].includes(e.response.status)) {
-					conn.sendMessage(senderNumber, `Artikel tidak ditemukan :(`, MessageType.text, { quoted: message });
-				} else {
-					throw e;
-				}
-			})
+		.then(response => {
+			const text = `*${response.data.title}*\n\n${response.data.content}`;
+			conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
+		})
+		.catch(e => {
+			if ([ 500, 400, 404 ].includes(e.response.status)) {
+				conn.sendMessage(senderNumber, `Artikel tidak ditemukan :(`, MessageType.text, { quoted: message });
+			} else {
+				throw e;
+			}
+		})
 
 	} else if (imageMessage && imageMessage.caption == "!wait") {
 		const image = await conn.downloadMediaMessage(message);
@@ -234,6 +236,18 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 
 		const text = `Nama Anime : _${result.title_romaji}_\nSeason : _${result.season}_\nEpisode : _${result.episode}_\nAkurasi : _${result.similarity}_`
 		conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
+
+	} else if (command == "!textsticker" && parameter) {
+		const response = await axios.post("https://salism3api.pythonanywhere.com/text2img", { "text":parameter.slice(0,60) });
+		
+		let image = await axios({
+			url: response.data.image,
+			method: "GET",
+			responseType: "arraybuffer",
+		});
+		image = Buffer.from(image.data, "binary");
+		const webpImage = await webpConverter.imageToWebp(image);
+		conn.sendMessage(senderNumber, webpImage, MessageType.sticker, { quoted: message });
 
 	} else {
 		if (!message.participant && !stickerMessage) conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });
