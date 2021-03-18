@@ -2,10 +2,8 @@
 // Jika ingin mengubah / mengedit, mohon untuk tidak menghilangkan link github asli di dalam bot terimakasih ^_^
 
 const fs = require("fs");
-const conn = require("./conn.js");;
-const messageHandler = require("./messageHandler.js");
-
-if (!fs.existsSync(".temp")) fs.mkdirSync(".temp");
+const conn = require("./lib/conn.js");;
+const messageHandler = require("./lib/messageHandler.js");
 
 if (fs.existsSync("login.json")) conn.loadAuthInfo("login.json");
 
