@@ -4,14 +4,14 @@ const fs = require("fs");
 const axios = require("axios");
 const PDFDocument = require("pdfkit");
 const brainly = require("brainly-scraper");
-const webpConverter = require("./webpconverter.js");
+const webpConverter = require("./lib/webpconverter.js");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
-const conn = require("./conn.js");
+const conn = require("./lib/conn.js");
 
 const inPdfInput = [];
 const bufferImagesForPdf = {};
-const quotesList = JSON.parse(fs.readFileSync(__dirname + "/quotes.json", "utf-8"));
-const factList = JSON.parse(fs.readFileSync(__dirname + "/fact.json", "utf-8"));
+const quotesList = JSON.parse(fs.readFileSync("lib/quotes.json", "utf-8"));
+const factList = JSON.parse(fs.readFileSync("lib/fact.json", "utf-8"));
 
 module.exports = async (message) => {
 	if (!message.message || message.key.fromMe) return;
@@ -81,22 +81,23 @@ module.exports = async (message) => {
 - reply sticker dengan caption *!toimg* untuk membuat sticker ke gambar
 
 - kirim *!textsticker [text kamu]* untuk membuat text sticker
+  contoh: !textsticker ini sticker
 
 - kirim *!write [masukan text disini]* untuk menulis ke kertas
-contoh: !write ini tulisanku
+  contoh: !write ini tulisanku
 
 - kirim *!brainly [pertanyaan kamu]* untuk mencari pertanyaan dan jawaban di brainly
-contoh: !brainly apa itu nodejs
+  contoh: !brainly apa itu nodejs
 
 - *!quotes* untuk mendapatkan quotes
 
 - *!randomfact* untuk mendapatkan pengetahuan acak
 
 - *!gtts [kode bahasa] [text]* untuk mengubah text ke suara google. Untuk kode bahasa dilihat disini https://s.id/xSj1g
-contoh: !gtts id saya bot
+   contoh: !gtts id saya bot
 
 - *!wikipedia [query]* untuk mencari dan membaca artikel di wikipedia
-contoh: !wikipedia Python
+   contoh: !wikipedia Python
 
 - kirim gambar dengan caption *!wait* untuk mencari judul dan episode anime dari scene
 
@@ -332,7 +333,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 
 		default:
 		{
-			if (!message.participant && !stickerMessage) conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });
+			// if (!message.participant && !stickerMessage) conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });
 		}
 
 	}

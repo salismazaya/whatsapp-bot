@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const conn = require("./lib/conn.js");;
-const messageHandler = require("./lib/messageHandler.js");
+const messageHandler = require("./messageHandler.js");
 
 if (fs.existsSync("login.json")) conn.loadAuthInfo("login.json");
 
