@@ -333,7 +333,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 
 		default:
 		{
-			// if (!message.participant && !stickerMessage) conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });
+			if (!message.participant && !stickerMessage) conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });
 		}
 
 	}
