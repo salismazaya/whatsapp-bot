@@ -4,6 +4,7 @@ const fs = require("fs");
 const axios = require("axios");
 const PDFDocument = require("pdfkit");
 const brainly = require("brainly-scraper");
+const tesseract = require("node-tesseract-ocr")
 const webpConverter = require("./lib/webpconverter.js");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
 const conn = require("./lib/conn.js");
@@ -14,8 +15,6 @@ const quotesList = JSON.parse(fs.readFileSync("lib/quotes.json", "utf-8"));
 const factList = JSON.parse(fs.readFileSync("lib/fact.json", "utf-8"));
 
 module.exports = async (message) => {
-	if (!message.message || message.key.fromMe) return;
-
 	const senderNumber = message.key.remoteJid;
 	const imageMessage = message.message.imageMessage;
 	const stickerMessage = message.message.stickerMessage;
@@ -118,7 +117,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 - Facebook: fb.me/salismazaya
 - Telegram: t.me/salismiftah
 - Email: salismazaya@gmail.com`;
-			conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message, detectLinks: false });
+			conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
 			break;
 		}
 
@@ -130,7 +129,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			}
 
 			if (!message.message.imageMessage || message.message.imageMessage.mimetype != "image/jpeg") {
-				conn.sendMessage(senderNumber, "Tidak ada gambar :)", MessageType.text, { quoted: message, detectLinks: false });
+				conn.sendMessage(senderNumber, "Tidak ada gambar :)", MessageType.text, { quoted: message });
 				break;
 			}
 
@@ -144,7 +143,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 		case "!toimage":
 		{
 			if (!quotedMessage || !quotedMessage.stickerMessage || quotedMessage.stickerMessage.mimetype != "image/webp") {
-				conn.sendMessage(senderNumber, "Harus me-reply sticker :)", MessageType.text, { quoted: message, detectLinks: false });
+				conn.sendMessage(senderNumber, "Harus me-reply sticker :)", MessageType.text, { quoted: message });
 				break;
 			}
 
@@ -159,7 +158,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 		case "!nulis":
 		{
 			if (!parameter) {
-				conn.sendMessage(senderNumber, "Tidak ada text :)", MessageType.text, { quoted: message, detectLinks: false });
+				conn.sendMessage(senderNumber, "Tidak ada text :)", MessageType.text, { quoted: message });
 				break;
 			}
 
@@ -295,7 +294,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			}
 
 			if (!message.message.imageMessage || message.message.imageMessage.mimetype != "image/jpeg") {
-				conn.sendMessage(senderNumber, "Tidak ada gambar :)", MessageType.text, { quoted: message, detectLinks: false });
+				conn.sendMessage(senderNumber, "Tidak ada gambar :)", MessageType.text, { quoted: message });
 				break;
 			}
 
@@ -328,6 +327,24 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			image = Buffer.from(image.data, "binary");
 			const webpImage = await webpConverter.imageToWebp(image);
 			conn.sendMessage(senderNumber, webpImage, MessageType.sticker, { quoted: message });
+			break;
+		}
+
+		case "!ocr":
+		{
+			if (quotedMessage) {
+				message.message = quotedMessage;
+			}
+
+			if (!message.message.imageMessage || message.message.imageMessage.mimetype != "image/jpeg") {
+				conn.sendMessage(senderNumber, "Tidak ada gambar :)", MessageType.text, { quoted: message });
+				break;
+			}
+			const imagePath = await conn.downloadAndSaveMediaMessage(message, Math.floor(Math.random() * 1000000));
+			const textImage = (await tesseract.recognize(imagePath)).trim();
+			fs.unlinkSync(imagePath)
+
+			conn.sendMessage(senderNumber, textImage, MessageType.text, { quoted: message });		
 			break;
 		}
 

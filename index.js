@@ -7,23 +7,24 @@ const messageHandler = require("./messageHandler.js");
 
 if (fs.existsSync("login.json")) conn.loadAuthInfo("login.json");
 
-conn.on("credentials-updated", () => {
-	const authInfo = conn.base64EncodedAuthInfo();
-	fs.writeFileSync("login.json", JSON.stringify(authInfo));
-});
+conn.on("chat-update", async (message) => {
+	try {
+		if (!message.hasNewMessage) return;
+		message = message.messages.all()[0];
+		if (!message.message || message.key.fromMe || message.key && message.key.remoteJid == 'status@broadcast') return;
 
-
-conn.on("message-new", (message) => {
-	messageHandler(message).catch(e => {
+		await messageHandler(message);
+	} catch(e) {
 		console.log("[ERROR] " + e.message);
-		conn.sendMessage(message.key.remoteJid, "Terjadi error! coba lagi nanti", "conversation", { quoted: message })
-	});
+		conn.sendMessage(message.key.remoteJid, "Terjadi error! coba lagi nanti", "conversation", { quoted: message });
+	}
 });
 
 
 conn.connect()
 	.then(() => {
-		console.log("[OK] Login sukses! kirim !help untuk menampilkan perintah")
+		fs.writeFileSync("login.json", JSON.stringify(conn.base64EncodedAuthInfo()));
+		console.log("[OK] Login sukses! kirim !help untuk menampilkan perintah");
 	})
 	.catch(e => {
 		if (fs.existsSync("login.json")) fs.unlinkSync("login.json");

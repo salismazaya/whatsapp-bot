@@ -17,10 +17,11 @@
   },
   "homepage": "https://github.com/salismazaya/whatsapp-bot#readme",
   "dependencies": {
-    "@adiwajshing/baileys": "3.4.1",
+    "@adiwajshing/baileys": "^3.5.0",
     "axios": "^0.21.1",
     "brainly-scraper": "^1.0.3",
     "file-type": "16.2.0",
+    "node-tesseract-ocr": "^2.0.0",
     "pdfkit": "^0.11.0"
   }
 }
