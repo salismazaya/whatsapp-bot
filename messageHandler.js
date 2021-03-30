@@ -4,8 +4,9 @@ const fs = require("fs");
 const axios = require("axios");
 const PDFDocument = require("pdfkit");
 const brainly = require("brainly-scraper");
-const tesseract = require("node-tesseract-ocr")
-const webpConverter = require("./lib/webpconverter.js");
+const tesseract = require("node-tesseract-ocr");
+const webpConverter = require("./lib/webpconverter.js")
+const WSF = require("wa-sticker-formatter");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
 const conn = require("./lib/conn.js");
 
@@ -23,8 +24,15 @@ module.exports = async (message) => {
 	const textMessage = message.message.conversation || message.message.extendedTextMessage && message.message.extendedTextMessage.text || imageMessage && imageMessage.caption;
 	let command, parameter;
 	if (textMessage) {
-		command = textMessage.trim().split(" ")[0];
-		parameter = textMessage.trim().split(" ").slice(1).join(" ");
+		// command = textMessage.trim().split(" ")[0];
+		// parameter = textMessage.trim().split(" ").slice(1).join(" ");
+
+		let a = textMessage.trim().split("\n");
+		let b = "";
+		command = a[0].split(" ")[0];
+		b += a[0].split(" ").slice(1).join(" ");
+		b += a.slice(1).join("\n")
+		parameter = b.trim();
 	}
 
 	if (inPdfInput.includes(senderNumber)) {
@@ -45,20 +53,25 @@ module.exports = async (message) => {
 
 			file.on("finish", () => {
 				const file = fs.readFileSync(pathFile);
-				conn.sendMessage(senderNumber, file, MessageType.document, { mimetype: Mimetype.pdf, filename: senderNumber.split("@")[0] + ".pdf", quoted: message});
+				conn.sendMessage(senderNumber, file, MessageType.document, { mimetype: Mimetype.pdf, filename: Math.floor(Math.random() * 1000000) + ".pdf", quoted: message});
 				fs.unlinkSync(pathFile);
 				inPdfInput.splice(inPdfInput.indexOf(senderNumber), 1);
 				delete bufferImagesForPdf[senderNumber];
 			})
 
+		} else if (command == "!cancel") {
+			delete bufferImagesForPdf[senderNumber];
+			inPdfInput.splice(inPdfInput.indexOf(senderNumber), 1);
+			conn.sendMessage(senderNumber, "Operasi dibatalkan!", MessageType.text, { quoted: message })
+
 		} else if (imageMessage && imageMessage.mimetype == "image/jpeg") {
 			const bufferImage = await conn.downloadMediaMessage(message);
 			bufferImagesForPdf[senderNumber].push(bufferImage);
 
-			conn.sendMessage(senderNumber, `[${bufferImagesForPdf[senderNumber].length}] Sukses menambah gambar!, kirim *!done* jika selesai`, MessageType.text, { quoted: message })
+			conn.sendMessage(senderNumber, `[${bufferImagesForPdf[senderNumber].length}] Sukses menambah gambar!, kirim *!done* jika selesai, *!cancel* jika ingin membatalkan`, MessageType.text, { quoted: message })
 			
 		} else {
-			conn.sendMessage(senderNumber, "Itu bukan gambar! kirim *!done* jika selesai", MessageType.text, { quoted: message })
+			conn.sendMessage(senderNumber, "Itu bukan gambar! kirim *!done* jika selesai, *!cancel* jika ingin membatalkan", MessageType.text, { quoted: message })
 		}
 
 		return;
@@ -135,14 +148,16 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 				break;
 			}
 
-			const image = await conn.downloadMediaMessage(message);
-			const webpImage = await webpConverter.imageToWebp(image);
-			conn.sendMessage(senderNumber, webpImage, MessageType.sticker, { quoted: message });
+			const imagePath = await conn.downloadAndSaveMediaMessage(message, Math.floor(Math.random() * 1000000));
+			const sticker = new WSF.Sticker("./" + imagePath, { crop: false, pack: "github.com/salismazaya", author: conn.user.name });
+			await sticker.build();
+			fs.unlinkSync(imagePath);
+			const bufferImage = await sticker.get();
+			conn.sendMessage(senderNumber, bufferImage, MessageType.sticker, { quoted: message });
 			break;
 		}
 
 		case "!toimg":
-		case "!toimage":
 		{
 			if (!quotedMessage || !quotedMessage.stickerMessage || quotedMessage.stickerMessage.mimetype != "image/webp") {
 				conn.sendMessage(senderNumber, "Harus me-reply sticker :)", MessageType.text, { quoted: message });
@@ -183,7 +198,12 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 		{
 			if (message.participant) {
 				conn.sendMessage(senderNumber, "Fitur ini tidak bisa berjalan di grup :(", MessageType.text, { quoted: message });
-				return;
+				break;
+			}
+
+			if (imageMessage) {
+				conn.sendMessage(senderNumber, "Kirim tanpa gambar!", MessageType.text, { quoted: message });
+				break;
 			}
 
 			inPdfInput.push(senderNumber);
@@ -320,15 +340,10 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			}
 
 			const response = await axios.post("https://salism3api.pythonanywhere.com/text2img", { "text":parameter.slice(0,60) });
-		
-			let image = await axios({
-				url: response.data.image,
-				method: "GET",
-				responseType: "arraybuffer",
-			});
-			image = Buffer.from(image.data, "binary");
-			const webpImage = await webpConverter.imageToWebp(image);
-			conn.sendMessage(senderNumber, webpImage, MessageType.sticker, { quoted: message });
+			const sticker = new WSF.Sticker(response.data.image, { crop: false, pack: "github.com/salismazaya", author: conn.user.name });
+			await sticker.build();
+			const bufferImage = await sticker.get();
+			conn.sendMessage(senderNumber, bufferImage, MessageType.sticker, { quoted: message });
 			break;
 		}
 
