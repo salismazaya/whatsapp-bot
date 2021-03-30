@@ -98,6 +98,8 @@ module.exports = async (message) => {
 - *!wikipedia [query]* untuk mencari dan membaca artikel di wikipedia
    contoh: !wikipedia Python
 
+- kirim gambar dengan caption *!ocr* untuk mendapatkan text dari gambar
+
 - kirim gambar dengan caption *!wait* untuk mencari judul dan episode anime dari scene
 
 Bot sensitif terhadap simbol / spasi / huruf kecil / huruf besar jadi, bot tidak akan membalas jika terjadi kesalahan penulisan!

@@ -35,6 +35,7 @@ node index.js
 - convert gambar ke pdf
 - nulis
 - brainly
+- ocr
 - random quotes
 - random pengetahuan
 - text to sound
