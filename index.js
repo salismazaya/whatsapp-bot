@@ -2,8 +2,29 @@
 // Jika ingin mengubah / mengedit, mohon untuk tidak menghilangkan link github asli di dalam bot terimakasih ^_^
 
 const fs = require("fs");
-const conn = require("./lib/conn.js");;
+const conn = require("./lib/conn.js");
 const messageHandler = require("./messageHandler.js");
+const http = require("http");
+const qrcode = require("qrcode");
+
+const server = http.createServer((req, res) => {
+	if (req.url == "/") {
+		res.end(fs.readFileSync("templates/index.html", "utf-8"));
+	} else {
+		res.end("404");
+	}
+})
+
+const io = require("socket.io")(server);
+io.on("connection", (socket) => {
+	conn.on("qr", async (qr) => {
+		const imgURI = await qrcode.toDataURL(qr);
+		socket.emit("qr", imgURI)
+	})
+})
+
+
+server.listen(process.env.PORT || 3000);
 
 if (fs.existsSync("login.json")) conn.loadAuthInfo("login.json");
 

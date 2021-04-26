@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Scan!</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+	<div id="qr">
+		<span>Waitt</span>
+	</div>
+</body>
+
+
+<script type="text/javascript" src="/socket.io/socket.io.js">
+</script>
+
+<script type="text/javascript">
+	const socket = io();
+	socket.on("qr", (imgURI) => {
+		document.getElementById('qr').innerHTML = `<img src="${imgURI}">`
+	})
+</script>
+</html>
