@@ -95,6 +95,9 @@ module.exports = async (conn, message) => {
 - kirim *!textsticker [text kamu]* untuk membuat text sticker
   contoh: !textsticker ini sticker
 
+- kirim *!giftextsticker [text kamu]* untuk membuat text sticker jedag jedug
+  contoh: !giftextsticker ini sticker
+
 - kirim video dengan caption *!gifsticker* untuk membuat sticker bergerak
 
 - kirim *!write [masukan text disini]* untuk menulis ke kertas
