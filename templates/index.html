@@ -10,14 +10,16 @@
 	</div>
 </body>
 
-
 <script type="text/javascript" src="/socket.io/socket.io.js">
 </script>
 
 <script type="text/javascript">
 	const socket = io();
 	socket.on("qr", (imgURI) => {
-		document.getElementById('qr').innerHTML = `<img src="${imgURI}">`
-	})
+		document.getElementById('qr').innerHTML = `<img src="${imgURI}">`;
+	});
+	socket.on("connected", () => {
+		document.getElementById('qr').innerHTML = "<span>Terhubung</span>";
+	});
 </script>
 </html>

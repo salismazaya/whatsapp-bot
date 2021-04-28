@@ -6,7 +6,7 @@
 
 ### Install di Termux
 ````
-pkg install nodejs git tesseract libwebp wget imagemagick
+pkg install nodejs git tesseract libwebp wget imagemagick ffmpeg
 git clone https://github.com/salismazaya/whatsapp-bot
 wget https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/master/ind.traineddata
 mv ind.traineddata /data/data/com.termux/files/usr/share/tessdata 
@@ -17,7 +17,7 @@ node index.js
 
 ### Install di Linux (ubuntu & debian)
 ```
-sudo apt install npm git webp imagemagick
+sudo apt install npm git webp imagemagick ffmpeg
 sudo apt install tesseract-ocr tesseract-ocr-ind
 sudo npm install -g n
 sudo n stable
@@ -31,6 +31,7 @@ node index.js
 ```
 - convert gambar ke sticker
 - convert text ke sticker
+- convert video ke sticker
 - convert sticker ke gambar
 - convert gambar ke pdf
 - nulis

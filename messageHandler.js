@@ -8,20 +8,20 @@ const tesseract = require("node-tesseract-ocr");
 const webpConverter = require("./lib/webpconverter.js")
 const WSF = require("wa-sticker-formatter");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
-const conn = require("./lib/conn.js");
 
 const inPdfInput = [];
 const bufferImagesForPdf = {};
 const quotesList = JSON.parse(fs.readFileSync("lib/quotes.json", "utf-8"));
 const factList = JSON.parse(fs.readFileSync("lib/fact.json", "utf-8"));
 
-module.exports = async (message) => {
+module.exports = async (conn, message) => {
 	const senderNumber = message.key.remoteJid;
 	const imageMessage = message.message.imageMessage;
+	const videoMessage = message.message.videoMessage;
 	const stickerMessage = message.message.stickerMessage;
 	const extendedTextMessage = message.message.extendedTextMessage;
 	const quotedMessage = extendedTextMessage && extendedTextMessage.contextInfo && extendedTextMessage.contextInfo.quotedMessage;
-	const textMessage = message.message.conversation || message.message.extendedTextMessage && message.message.extendedTextMessage.text || imageMessage && imageMessage.caption;
+	const textMessage = message.message.conversation || message.message.extendedTextMessage && message.message.extendedTextMessage.text || imageMessage && imageMessage.caption || videoMessage && videoMessage.caption
 	let command, parameter;
 	if (textMessage) {
 		// command = textMessage.trim().split(" ")[0];
@@ -94,6 +94,8 @@ module.exports = async (message) => {
 
 - kirim *!textsticker [text kamu]* untuk membuat text sticker
   contoh: !textsticker ini sticker
+
+- kirim video dengan caption *!gifsticker* untuk membuat sticker bergerak
 
 - kirim *!write [masukan text disini]* untuk menulis ke kertas
   contoh: !write ini tulisanku
@@ -362,6 +364,31 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			fs.unlinkSync(imagePath)
 
 			conn.sendMessage(senderNumber, textImage, MessageType.text, { quoted: message });		
+			break;
+		}
+
+		case "!gifsticker":
+		{
+			if (quotedMessage) {
+				message.message = quotedMessage;
+			}
+
+			if (!message.message.videoMessage || message.message.videoMessage.mimetype != "video/mp4") {
+				conn.sendMessage(senderNumber, "Tidak ada video :)", MessageType.text, { quoted: message });
+				break;
+			}
+
+			if (message.message.videoMessage.seconds > 8) {
+				conn.sendMessage(senderNumber, "Maksimal 8 detik!", MessageType.text, { quoted: message });
+				break;	
+			}
+
+			const imagePath = await conn.downloadAndSaveMediaMessage(message, Math.floor(Math.random() * 1000000));
+			const sticker = new WSF.Sticker("./" + imagePath, { animated: true, pack: "github.com/salismazaya", author: conn.user.name });
+			await sticker.build();
+			fs.unlinkSync(imagePath);
+			const bufferImage = await sticker.get();
+			conn.sendMessage(senderNumber, bufferImage, MessageType.sticker, { quoted: message });
 			break;
 		}
 
