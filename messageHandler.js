@@ -392,6 +392,21 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			break;
 		}
 
+		case "!giftextsticker":
+		{
+			if (!parameter) {
+				conn.sendMessage(senderNumber, "Inputnya salah kak :)", MessageType.text, { quoted: message });
+				break;
+			}
+
+			const response = await axios.post("https://salism3api.pythonanywhere.com/text2gif/", { "text":parameter.slice(0,60) });
+			let image = await axios.get(response.data.image, { "responseType":"arraybuffer" });
+			image = Buffer.from(image.data, "binary");
+			image = await webpConverter.gifToWebp(image);
+			conn.sendMessage(senderNumber, image, MessageType.sticker, { quoted: message });
+			break;	
+		}
+
 		default:
 		{
 			if (!message.participant && !stickerMessage) conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });

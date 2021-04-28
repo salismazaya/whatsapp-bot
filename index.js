@@ -40,7 +40,10 @@ conn.on("chat-update", async (message) => {
 		if (!message.hasNewMessage) return;
 		message = message.messages.all()[0];
 		if (!message.message || message.key.fromMe || message.key && message.key.remoteJid == 'status@broadcast') return;
-
+		if (message.message.ephemeralMessage) {
+			message.message = message.message.ephemeralMessage.message;
+		}
+		
 		await messageHandler(conn, message);
 	} catch(e) {
 		console.log("[ERROR] " + e.message);

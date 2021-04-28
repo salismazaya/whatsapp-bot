@@ -31,6 +31,7 @@ node index.js
 ```
 - convert gambar ke sticker
 - convert text ke sticker
+- convert text ke gif sticker
 - convert video ke sticker
 - convert sticker ke gambar
 - convert gambar ke pdf
