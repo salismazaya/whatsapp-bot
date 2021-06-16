@@ -8,6 +8,7 @@ const qrcode = require("qrcode");
 const { WAConnection } = require("@adiwajshing/baileys");
 
 const conn = new WAConnection();
+conn.version = [2, 2119, 6];
 conn.maxCachedMessages = 15;
 
 const server = http.createServer((req, res) => {
