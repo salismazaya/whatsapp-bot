@@ -34,8 +34,6 @@ io.on("connection", (socket) => {
 
 server.listen(process.env.PORT || 3000);
 
-if (fs.existsSync("login.json")) conn.loadAuthInfo("login.json");
-
 conn.on("chat-update", async (message) => {
 	try {
 		if (!message.hasNewMessage) return;
@@ -53,6 +51,7 @@ conn.on("chat-update", async (message) => {
 });
 
 const start = () => {
+	if (fs.existsSync("login.json")) conn.loadAuthInfo("login.json");
 	conn.connect()
 		.then(() => {
 			fs.writeFileSync("login.json", JSON.stringify(conn.base64EncodedAuthInfo()));

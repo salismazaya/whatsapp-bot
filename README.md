@@ -42,5 +42,5 @@ node index.js
 - random pengetahuan
 - text to sound
 - wikipedia
-- WAIT: What Anime Is This?
+- soal matematika
 ```

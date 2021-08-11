@@ -8,8 +8,10 @@ const tesseract = require("node-tesseract-ocr");
 const webpConverter = require("./lib/webpconverter.js")
 const WSF = require("wa-sticker-formatter");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
+const { setTimeout } = require("timers");
 
 const inPdfInput = [];
+const questionAnswer = {};
 const bufferImagesForPdf = {};
 const quotesList = JSON.parse(fs.readFileSync("lib/quotes.json", "utf-8"));
 const factList = JSON.parse(fs.readFileSync("lib/fact.json", "utf-8"));
@@ -20,7 +22,8 @@ module.exports = async (conn, message) => {
 	const videoMessage = message.message.videoMessage;
 	const stickerMessage = message.message.stickerMessage;
 	const extendedTextMessage = message.message.extendedTextMessage;
-	const quotedMessage = extendedTextMessage && extendedTextMessage.contextInfo && extendedTextMessage.contextInfo.quotedMessage;
+	const quotedMessageContext = extendedTextMessage && extendedTextMessage.contextInfo && extendedTextMessage.contextInfo;
+	const quotedMessage = quotedMessageContext && quotedMessageContext.quotedMessage;
 	const textMessage = message.message.conversation || message.message.extendedTextMessage && message.message.extendedTextMessage.text || imageMessage && imageMessage.caption || videoMessage && videoMessage.caption
 	let command, parameter;
 	if (textMessage) {
@@ -116,9 +119,9 @@ module.exports = async (conn, message) => {
 - *!wikipedia [query]* untuk mencari dan membaca artikel di wikipedia
    contoh: !wikipedia Python
 
-- kirim gambar dengan caption *!ocr* untuk mendapatkan text dari gambar
+- *!math* untuk mengerjakan soal matematika 
 
-- kirim gambar dengan caption *!wait* untuk mencari judul dan episode anime dari scene
+- kirim gambar dengan caption *!ocr* untuk mendapatkan text dari gambar
 
 Bot sensitif terhadap simbol / spasi / huruf kecil / huruf besar jadi, bot tidak akan membalas jika terjadi kesalahan penulisan!
 
@@ -313,29 +316,6 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			break;
 		}
 
-		case "!wait":
-		case "!whatanime":
-		{
-			if (quotedMessage) {
-				message.message = quotedMessage;
-			}
-
-			if (!message.message.imageMessage || message.message.imageMessage.mimetype != "image/jpeg") {
-				conn.sendMessage(senderNumber, "Tidak ada gambar :)", MessageType.text, { quoted: message });
-				break;
-			}
-
-			const image = await conn.downloadMediaMessage(message);
-			const imageBase64 = image.toString("base64");
-
-			const response = await axios.post("https://trace.moe/api/search", { "image":imageBase64 });
-			const result = response.data.docs[0];
-
-			const text = `Nama Anime : _${result.title_romaji}_\nSeason : _${result.season}_\nEpisode : _${result.episode}_\nAkurasi : _${result.similarity}_`
-			conn.sendMessage(senderNumber, text, MessageType.text, { quoted: message });
-			break;
-		}
-
 		case "!textsticker":
 		case "!textstiker":
 		{
@@ -410,9 +390,37 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			break;	
 		}
 
+
+		case "!math":
+		{
+			const response = await axios.get("https://salism3api.pythonanywhere.com/math/");
+			let image = await axios.get(response.data.image, { "responseType":"arraybuffer" });
+			image = Buffer.from(image.data, "binary");
+			const msg = await conn.sendMessage(senderNumber, image, MessageType.image, { quoted: message, caption: "Balas pesan ini untuk menjawab!"});
+			questionAnswer[msg.key.id] = response.data.answer;
+
+			setTimeout(() => {
+				if (questionAnswer[msg.key.id]) {
+					conn.sendMessage(senderNumber, "Waktu habis!", MessageType.text, { quoted: msg });
+					delete questionAnswer[msg.key.id];
+				}
+			}, 600 * 1000);
+			break;
+		}
+
 		default:
 		{
-			if (!message.participant && !stickerMessage) conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });
+			if (quotedMessage && questionAnswer[quotedMessageContext.stanzaId] && textMessage) {
+				const answer = questionAnswer[quotedMessageContext.stanzaId];
+				if (answer == parseInt(textMessage)) {
+					conn.sendMessage(senderNumber, "Keren! jawaban benar", MessageType.text, { quoted: message });
+					delete questionAnswer[quotedMessageContext.stanzaId];
+				} else {
+					conn.sendMessage(senderNumber, "Jawaban salah!", MessageType.text, { quoted: message })
+				}
+			} else if (!message.participant && !stickerMessage) {
+				conn.sendMessage(senderNumber, "Command tidak terdaftar, kirim *!help* untuk melihat command terdaftar", MessageType.text, { quoted: message });
+			}
 		}
 
 	}
