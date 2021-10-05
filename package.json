@@ -26,6 +26,6 @@
     "pdfkit": "^0.11.0",
     "qrcode": "^1.4.4",
     "socket.io": "^4.0.1",
-    "wa-sticker-formatter": "^2.8.0"
+    "wa-sticker-formatter": "2.8.0"
   }
 }
