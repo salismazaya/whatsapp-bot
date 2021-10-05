@@ -91,6 +91,8 @@ module.exports = async (conn, message) => {
 
 - kirim gambar dengan caption *!sticker* untuk membuat sticker
 
+- kirim gambar dengan caption *!stickernobg* untuk membuat sticker tanpa background
+
 - kirim *!pdf* untuk membuat pdf dari gambar
 
 - reply sticker dengan caption *!toimg* untuk membuat sticker ke gambar
@@ -405,6 +407,34 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 					delete questionAnswer[msg.key.id];
 				}
 			}, 600 * 1000);
+			break;
+		}
+
+		case "!stickernobg":
+		case "!stikernobg":
+		case "!snobg":
+		{
+			if (quotedMessage) {
+				message.message = quotedMessage;
+			}
+
+			if (!message.message.imageMessage || message.message.imageMessage.mimetype != "image/jpeg") {
+				conn.sendMessage(senderNumber, "Tidak ada gambar :)", MessageType.text, { quoted: message });
+				break;
+			}
+
+			const image = await conn.downloadMediaMessage(message);
+			const imageb64 = image.toString('base64')
+			conn.sendMessage(senderNumber, 'Tunggu ya kak!', MessageType.text);
+			const data = await axios.post('https://salisganteng.pythonanywhere.com/api/remove-bg', {
+				'api-key': 'salisheker',
+				'image': imageb64,
+			})
+
+			const sticker = new WSF.Sticker(data.data.image, { crop: false, pack: "github.com/salismazaya", author: conn.user.name });
+			await sticker.build();
+			const bufferImage = await sticker.get();
+			conn.sendMessage(senderNumber, bufferImage, MessageType.sticker, { quoted: message });
 			break;
 		}
 
