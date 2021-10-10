@@ -8,7 +8,6 @@ const tesseract = require("node-tesseract-ocr");
 const webpConverter = require("./lib/webpconverter.js")
 const WSF = require("wa-sticker-formatter");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
-const { setTimeout } = require("timers");
 
 const inPdfInput = [];
 const questionAnswer = {};
@@ -97,6 +96,8 @@ module.exports = async (conn, message) => {
 
 - reply sticker dengan caption *!toimg* untuk membuat sticker ke gambar
 
+- reply sticker bergerak dengan caption *!togif* untuk membuat sticker ke gif
+
 - kirim *!textsticker [text kamu]* untuk membuat text sticker
   contoh: !textsticker ini sticker
 
@@ -178,6 +179,21 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			const webpImage = await conn.downloadMediaMessage(message);
 			const jpgImage = await webpConverter.webpToJpg(webpImage);
 			conn.sendMessage(senderNumber, jpgImage, MessageType.image, { quoted: message, caption: "Ini gambarnya kak!" });
+			break;
+		}
+
+		
+		case "!togif":
+		{
+			if (!quotedMessage || !quotedMessage.stickerMessage || quotedMessage.stickerMessage.mimetype != "image/webp") {
+				conn.sendMessage(senderNumber, "Harus me-reply sticker :)", MessageType.text, { quoted: message });
+				break;
+			}
+
+			message.message = quotedMessage;
+			const webpImage = await conn.downloadMediaMessage(message);
+			const video = await webpConverter.webpToVideo(webpImage);
+			conn.sendMessage(senderNumber, video, MessageType.video, { quoted: message, mimetype: Mimetype.gif });
 			break;
 		}
 

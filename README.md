@@ -35,6 +35,7 @@ node index.js
 - convert text ke gif sticker
 - convert video ke sticker
 - convert sticker ke gambar
+- convert sticker ke gif
 - convert gambar ke pdf
 - nulis
 - brainly
