@@ -160,7 +160,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			}
 
 			const imagePath = await conn.downloadAndSaveMediaMessage(message, Math.floor(Math.random() * 1000000));
-			const sticker = new WSF.Sticker("./" + imagePath, { crop: false, pack: "github.com/salismazaya", author: conn.user.name });
+			const sticker = new WSF.Sticker("./" + imagePath, { crop: false, pack: "i hope you fine :)", author: 'Sugito Tempest' });
 			await sticker.build();
 			fs.unlinkSync(imagePath);
 			const bufferImage = await sticker.get();
@@ -343,7 +343,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			}
 
 			const response = await axios.post("https://salism3api.pythonanywhere.com/text2img", { "text":parameter.slice(0,60) });
-			const sticker = new WSF.Sticker(response.data.image, { crop: false, pack: "github.com/salismazaya", author: conn.user.name });
+			const sticker = new WSF.Sticker(response.data.image, { crop: false, pack: "i hope you fine :)", author: 'Sugito Tempest' });
 			await sticker.build();
 			const bufferImage = await sticker.get();
 			conn.sendMessage(senderNumber, bufferImage, MessageType.sticker, { quoted: message });
@@ -385,7 +385,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			}
 
 			const imagePath = await conn.downloadAndSaveMediaMessage(message, Math.floor(Math.random() * 1000000));
-			const sticker = new WSF.Sticker("./" + imagePath, { animated: true, pack: "github.com/salismazaya", author: conn.user.name });
+			const sticker = new WSF.Sticker("./" + imagePath, { animated: true, pack: "i hope you fine :)", author: 'Sugito Tempest' });
 			await sticker.build();
 			fs.unlinkSync(imagePath);
 			const bufferImage = await sticker.get();
@@ -447,7 +447,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 				'image': imageb64,
 			})
 
-			const sticker = new WSF.Sticker(data.data.image, { crop: false, pack: "github.com/salismazaya", author: conn.user.name });
+			const sticker = new WSF.Sticker(data.data.image, { crop: false, pack: "i hope you fine :)", author: 'Sugito Tempest' });
 			await sticker.build();
 			const bufferImage = await sticker.get();
 			conn.sendMessage(senderNumber, bufferImage, MessageType.sticker, { quoted: message });
