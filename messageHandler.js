@@ -463,7 +463,7 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
                 case '!bplanet':
                     if (quotedMessage) message.message = quotedMessage
                     if (!!parameter) {
-                        var { alias, ...text } = parameter.split` `
+                        var [ alias, ...text ] = parameter.split` `
                         text = text.join` `
                         conn['sendMessage'](senderNumber, bahasa_planet(text, alias), 'conversation', {
                             quoted: message
