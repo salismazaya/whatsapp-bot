@@ -6,6 +6,7 @@ const PDFDocument = require("pdfkit");
 const brainly = require("brainly-scraper");
 const tesseract = require("node-tesseract-ocr");
 const webpConverter = require("./lib/webpconverter.js")
+const bahasa_planet = require('./lib/bahasa_planet')
 const WSF = require("wa-sticker-formatter");
 const { MessageType, Mimetype } = require("@adiwajshing/baileys");
 
@@ -454,6 +455,26 @@ apa? mau traktir aku? boleh banget https://saweria.co/salismazaya`.replace("(jik
 			break;
 		}
 
+                /**
+                 * Konversi bahasa planet
+                 * use: !bplanet g kamu lagi ngapain
+                 * result: kagamugu lagagigi ngagapagaigin
+                 **/
+                case '!bplanet':
+                    if (quotedMessage) message.message = quotedMessage
+                    if (!!parameter) {
+                        var [ alias, ...text ] = parameter.split` `
+                        text = text.join` `
+                        conn['sendMessage'](senderNumber, bahasa_planet(text, alias), 'conversation', {
+                            quoted: message
+                        })
+                    } else {
+                        var contoh = '[wrong format]\n\nformat: !bplanet <alias> <text>\ncontoh: !bplanet g kamu lagi ngapain?'
+                        conn['sendMessage'](senderNumber, contoh, 'conversation', {
+                            quoted: message
+                        })
+                    }
+                    break
 		default:
 		{
 			if (quotedMessage && questionAnswer[quotedMessageContext.stanzaId] && textMessage) {
