@@ -125,6 +125,9 @@ module.exports = async (conn, message) => {
 
 - *!math* untuk mengerjakan soal matematika 
 
+- *!bplanet [alias] [text]*
+   contoh: !bplanet g kamu lagi ngapain?
+
 - kirim gambar dengan caption *!ocr* untuk mendapatkan text dari gambar
 
 Bot sensitif terhadap simbol / spasi / huruf kecil / huruf besar jadi, bot tidak akan membalas jika terjadi kesalahan penulisan!

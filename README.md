@@ -45,4 +45,5 @@ node index.js
 - text to sound
 - wikipedia
 - soal matematika
+- bahasa planet
 ```
