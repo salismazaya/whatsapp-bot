@@ -4,11 +4,11 @@
 const fs = require("fs");
 const messageHandler = require("./messageHandler.js");
 const http = require("http");
+const axios = require("axios");
 const qrcode = require("qrcode");
 const { WAConnection } = require("@adiwajshing/baileys");
 
 const conn = new WAConnection();
-conn.version = [2, 2123, 8];
 conn.maxCachedMessages = 15;
 
 const server = http.createServer((req, res) => {
@@ -50,7 +50,9 @@ conn.on("chat-update", async (message) => {
 	}
 });
 
-const start = () => {
+const start = async () => {
+	const version = (await axios.get("https://raw.githubusercontent.com/salismazaya/whatsapp-bot/master/wa-web-version.txt")).data.split(",").map(x => parseInt(x));
+	conn.version = version;
 	if (fs.existsSync("login.json")) conn.loadAuthInfo("login.json");
 	conn.connect()
 		.then(() => {
