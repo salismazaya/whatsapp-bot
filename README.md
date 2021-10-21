@@ -6,7 +6,7 @@
 
 ### Install di Termux
 ````
-pkg install nodejs git tesseract libwebp wget imagemagick ffmpeg
+pkg install nodejs-lts git tesseract libwebp wget imagemagick ffmpeg
 git clone https://github.com/salismazaya/whatsapp-bot
 wget https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/master/ind.traineddata
 mv ind.traineddata /data/data/com.termux/files/usr/share/tessdata 
