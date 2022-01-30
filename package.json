@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "node index.js --dev"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "pdfkit": "^0.11.0",
     "qrcode": "^1.4.4",
     "socket.io": "^4.0.1",
-    "wa-sticker-formatter": "2.8.0"
+    "wa-sticker-formatter": "2.8.0",
+    "yargs": "^17.3.1"
   }
 }

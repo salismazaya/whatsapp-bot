@@ -6,6 +6,7 @@ const messageHandler = require("./messageHandler.js");
 const http = require("http");
 const axios = require("axios");
 const qrcode = require("qrcode");
+const yargs = require('yargs/yargs')
 const { WAConnection } = require("@adiwajshing/baileys");
 
 const conn = new WAConnection();
@@ -31,7 +32,7 @@ io.on("connection", (socket) => {
 	});
 })
 
-
+global.yargs = yargs(process.argv).argv
 server.listen(process.env.PORT || 3000);
 
 conn.on("chat-update", async (message) => {
@@ -45,8 +46,12 @@ conn.on("chat-update", async (message) => {
 		
 		await messageHandler(conn, message);
 	} catch(e) {
-		console.log("[ERROR] " + e.message);
-		conn.sendMessage(message.key.remoteJid, "Terjadi error! coba lagi nanti", "conversation", { quoted: message });
+		if (!global.yargs.dev) {
+			console.log("[ERROR] " + e.message);
+			conn.sendMessage(message.key.remoteJid, "Terjadi error! coba lagi nanti", "conversation", { quoted: message });
+		} else {
+			console.log(e);
+		}
 	}
 });
 
