@@ -30,10 +30,8 @@ node index.js
 ### fitur
 ```
 - convert gambar ke sticker
-- convert gambar ke sticker tanpa background
 - convert text ke sticker
 - convert text ke gif sticker
-- convert video ke sticker
 - convert sticker ke gambar
 - convert sticker ke gif
 - convert gambar ke pdf
