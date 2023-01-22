@@ -1,75 +1,56 @@
-// https://github.com/salismazaya/whatsapp-bot
-// Jika ingin mengubah / mengedit, mohon untuk tidak menghilangkan link github asli di dalam bot terimakasih ^_^
-
-const fs = require("fs");
-const messageHandler = require("./messageHandler.js");
-const http = require("http");
-const axios = require("axios");
-const qrcode = require("qrcode");
+const { default:makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@adiwajshing/baileys')
+const messageHandler = require('./messageHandler')
 const yargs = require('yargs/yargs')
-const { WAConnection } = require("@adiwajshing/baileys");
-
-const conn = new WAConnection();
-conn.maxCachedMessages = 15;
-
-const server = http.createServer((req, res) => {
-	if (req.url == "/") {
-		res.end(fs.readFileSync("templates/index.html", "utf-8"));
-	} else {
-		res.end("404");
-	}
-})
-
-const io = require("socket.io")(server);
-io.on("connection", (socket) => {
-	conn.on("qr", async (qr) => {
-		const imgURI = await qrcode.toDataURL(qr);
-		socket.emit("qr", imgURI);
-	});
-
-	conn.on("open", () => {
-		socket.emit("connected");
-	});
-})
 
 global.yargs = yargs(process.argv).argv
-server.listen(process.env.PORT || 3000);
 
-conn.on("chat-update", async (message) => {
-	try {
-		if (!message.hasNewMessage) return;
-		message = message.messages.all()[0];
-		if (!message.message || message.key.fromMe || message.key && message.key.remoteJid == 'status@broadcast') return;
-		if (message.message.ephemeralMessage) {
-			message.message = message.message.ephemeralMessage.message;
-		}
+
+async function connectToWhatsApp () {
+	const { state, saveCreds } = await useMultiFileAuthState('login')
+	const { version, isLatest } = await fetchLatestBaileysVersion()
+
+    const sock = makeWASocket({
+    	version,
+        printQRInTerminal: true,
+        auth: state,
+    })
+
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect } = update
+        if(connection === 'close') {
+            var _a, _b
+			var shouldReconnect = ((_b = (_a = lastDisconnect.error) === null || _a === void 0 ? void 0 : _a.output) === null || _b === void 0 ? void 0 : _b.statusCode) !== DisconnectReason.loggedOut
+            console.log('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect)
+            if(shouldReconnect) {
+                connectToWhatsApp()
+            }
+        } else if(connection === 'open') {
+            console.log('opened connection')
+        }
+    })
+
+    sock.ev.on('creds.update', saveCreds)
+
+    sock.ev.on('messages.upsert', async (m) => {
+    	m.messages.forEach(async (message) => {
+			if (!message.message || message.key.fromMe || message.key && message.key.remoteJid == 'status@broadcast') return
+			if (message.message.ephemeralMessage) {
+				message.message = message.message.ephemeralMessage.message
+			}
 		
-		await messageHandler(conn, message);
-	} catch(e) {
-		if (!global.yargs.dev) {
-			console.log("[ERROR] " + e.message);
-			conn.sendMessage(message.key.remoteJid, "Terjadi error! coba lagi nanti", "conversation", { quoted: message });
-		} else {
-			console.log(e);
+		try {
+			await messageHandler(sock, message);
+		} catch(e) {
+			if (!global.yargs.dev) {
+				console.log("[ERROR] " + e.message);
+				sock.sendMessage(message.key.remoteJid, {"text":"Terjadi error! coba lagi nanti"}, { quoted: message });
+			} else {
+				console.log(e);
+			}
 		}
-	}
-});
+    	})
+    })
 
-const start = async () => {
-	const version = (await axios.get("https://raw.githubusercontent.com/salismazaya/whatsapp-bot/master/wa-web-version.txt")).data.split(",").map(x => parseInt(x));
-	conn.version = version;
-	if (fs.existsSync("login.json")) conn.loadAuthInfo("login.json");
-	conn.connect()
-		.then(() => {
-			fs.writeFileSync("login.json", JSON.stringify(conn.base64EncodedAuthInfo()));
-			console.log("[OK] Login sukses! kirim !help untuk menampilkan perintah");
-		})
-		.catch(e => {
-			if (fs.existsSync("login.json")) fs.unlinkSync("login.json");
-			console.log("[ERROR] Login gagal!");
-			conn.clearAuthInfo();
-			start();
-		});
 }
 
-start();
+connectToWhatsApp()
