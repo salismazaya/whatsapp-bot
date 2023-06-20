@@ -1,4 +1,4 @@
-const { default:makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@adiwajshing/baileys')
+const { default:makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys')
 const messageHandler = require('./messageHandler')
 const yargs = require('yargs/yargs')
 
@@ -39,6 +39,7 @@ async function connectToWhatsApp () {
 			}
 		
 		try {
+			await sock.sendPresenceUpdate('composing', message.key.remoteJid)
 			await messageHandler(sock, message);
 		} catch(e) {
 			if (!global.yargs.dev) {
@@ -47,6 +48,8 @@ async function connectToWhatsApp () {
 			} else {
 				console.log(e);
 			}
+		} finally {
+			await sock.sendPresenceUpdate('available', message.key.remoteJid)
 		}
     	})
     })

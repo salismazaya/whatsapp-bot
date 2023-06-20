@@ -1,7 +1,7 @@
 {
   "name": "whatsapp-bot",
-  "version": "1.0.1",
-  "description": "lightweight Whatsapp Bot",
+  "version": "2.0.0",
+  "description": "Lightweight Whatsapp Bot",
   "main": "index.js",
   "scripts": {
     "test": "",
@@ -19,15 +19,15 @@
   },
   "homepage": "https://github.com/salismazaya/whatsapp-bot#readme",
   "dependencies": {
-    "@adiwajshing/baileys": "^4.4.0",
+    "@whiskeysockets/baileys": "^6.3.0",
     "axios": "^0.21.1",
-    "brainly-scraper": "^1.0.3",
     "file-type": "16.2.0",
+    "link-preview-js": "^3.0.4",
     "node-tesseract-ocr": "^2.0.0",
-    "pdfkit": "^0.11.0",
+    "openai": "^3.3.0",
     "qrcode": "^1.4.4",
     "qrcode-terminal": "^0.12.0",
-    "socket.io": "^4.0.1",
+    "redis": "^4.6.7",
     "wa-sticker-formatter": "2.8.0",
     "yargs": "^17.3.1"
   }
