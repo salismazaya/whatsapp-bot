@@ -22,6 +22,7 @@
     "@whiskeysockets/baileys": "^6.3.0",
     "axios": "^0.21.1",
     "file-type": "16.2.0",
+    "langchain": "^0.0.209",
     "link-preview-js": "^3.0.4",
     "node-tesseract-ocr": "^2.0.0",
     "openai": "^3.3.0",
