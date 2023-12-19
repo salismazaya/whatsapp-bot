@@ -7,3 +7,5 @@ COPY . .
 RUN apt update
 RUN apt install tesseract-ocr tesseract-ocr-ind webp ffmpeg imagemagick git -y
 RUN npm install
+
+CMD npm start

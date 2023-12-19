@@ -1,6 +1,5 @@
 node_modules
 login.json
-login
 .temp
 package-lock.json
 yarn.lock
@@ -8,3 +7,4 @@ yarn.lock
 .vscode
 *.jpg
 file.zip
+login
