@@ -21,6 +21,7 @@
   "dependencies": {
     "@whiskeysockets/baileys": "^6.3.0",
     "axios": "^0.21.1",
+    "dotenv": "^16.4.7",
     "file-type": "16.2.0",
     "langchain": "^0.0.209",
     "link-preview-js": "^3.0.4",

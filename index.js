@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const { default: makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys')
 const { downloadMediaMessage } = require("@whiskeysockets/baileys")
 const { initializeAgentExecutorWithOptions } = require("langchain/agents")
@@ -15,9 +17,9 @@ const yargs = require('yargs/yargs')
 
 global.yargs = yargs(process.argv).argv
 
-
 const MEMORY = {}
-const chat = new ChatOpenAI({ modelName: "gpt-3.5-turbo", temperature: 0.3 });
+const chat = new ChatOpenAI({ modelName: process.env.MODEL_NAME || 'gpt-4o-mini', temperature: 0.3 });
+
 
 async function connectToWhatsApp() {
 	try {
@@ -26,7 +28,7 @@ async function connectToWhatsApp() {
 
 	}
 	const { state, saveCreds } = await useMultiFileAuthState('login')
-	const { version, isLatest } = await fetchLatestBaileysVersion()
+	const { version } = await fetchLatestBaileysVersion()
 
 	const sock = makeWASocket({
 		version,
@@ -50,14 +52,30 @@ async function connectToWhatsApp() {
 
 	sock.ev.on('creds.update', saveCreds)
 
-	sock.ev.on('messages.upsert', async (m) => {
+	sock.ev.on('messages.upsert', (m) => {
+		const messageKeys = m.messages.map(message => {
+			if (!message.message || message.key.fromMe || message.key && message.key.remoteJid == 'status@broadcast') {
+				return null;
+			}
+
+			return message.key
+		}).filter(k => k != null)
+
+		if (messageKeys.length > 0) {
+			sock.readMessages(messageKeys).catch(() => {
+				console.log("Terjadi error saat membaca pesan")
+			})
+		}
+
 		m.messages.forEach(async (message) => {
 			if (!message.message || message.key.fromMe || message.key && message.key.remoteJid == 'status@broadcast') return
 			if (message.message.ephemeralMessage) {
 				message.message = message.message.ephemeralMessage.message
 			}
 
+			const myNumber = sock.user.id.split(':')[0]
 			const senderNumber = message.key.remoteJid
+			const isGroup = senderNumber.endsWith('@g.us')
 			const imageMessage = message.message.imageMessage
 			const videoMessage = message.message.videoMessage
 			const stickerMessage = message.message.stickerMessage
@@ -65,15 +83,13 @@ async function connectToWhatsApp() {
 			const quotedMessageContext = extendedTextMessage && extendedTextMessage.contextInfo && extendedTextMessage.contextInfo
 			const quotedMessage = quotedMessageContext && quotedMessageContext.quotedMessage
 			const textMessage = message.message.conversation || message.message.extendedTextMessage && message.message.extendedTextMessage.text || imageMessage && imageMessage.caption || videoMessage && videoMessage.caption || 'lakukuan sesuatu'
+			const isMentioned = textMessage.includes('@' + myNumber)
+
+			if (isGroup && !isMentioned) {
+				return
+			}
 
 			const tools = [
-				new DynamicTool({
-					name: 'get_ganteng',
-					description: 'untuk mengecek apakah ganteng',
-					func: async (name) => {
-						return 'tidak'
-					}
-				}),
 				new DynamicTool({
 					name: 'image_to_sticker',
 					description: 'untuk membuat sticker dari gambar (id) yang dikirim',
@@ -147,18 +163,17 @@ async function connectToWhatsApp() {
 					chatHistory: new ChatMessageHistory([
 						new SystemMessage('Kamu adalah Vera. asisten virtual berbasis whatsapp bot. kamu dibuat oleh Salis Mazaya, programmer jago yang sudah berpengalaman selama 5 tahun'),
 						new SystemMessage(`
-						Berikut adalah hal-hal yang mungkin bisa kamu lakukan!
+Berikut adalah hal-hal yang mungkin bisa kamu lakukan!
 						
-						1. Menjawab Pertanyaan
-						2. Ubah Sticker ke Poto
-						3. Ubah Text ke Sticker
-						4. Ubah Text ke Sticker Gerak
-						5. Mengubah Gambar ke Text (OCR)
+1. Menjawab Pertanyaan
+2. Ubah Text ke Sticker
+3. Ubah Text ke Sticker Gerak
+4. Mengubah Gambar ke Text (OCR)
 						`.trim())
 					]),
 					memoryKey: 'chat_history',
 					returnMessages: true,
-					k: 3,
+					k: 10,
 				})
 				MEMORY[senderNumber] = memory
 			}

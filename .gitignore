@@ -8,3 +8,4 @@ yarn.lock
 *.jpg
 file.zip
 login
+\.env
